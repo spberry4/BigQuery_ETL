@@ -8,7 +8,7 @@ import convert_datatypes
 #It then converts the bigquery datatypes to python datatypes and writes the resulting dataframe to a parquert file
 
 #setting credentials as an environment variable
-credentials_path = "C:/Users/seanberry/Desktop/bigquery/private_key_big_query.json"
+credentials_path = "insert file path here"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
 #authentication function
