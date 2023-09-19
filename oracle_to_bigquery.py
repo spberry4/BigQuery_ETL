@@ -1,4 +1,4 @@
-#oracle to bigquery
+#oracle to bigquery ETL
 
 import convert_datatypes
 import auth_oracle
@@ -8,14 +8,18 @@ import authenticate_credentials
 from google.cloud import bigquery
 import os
 import pandas_gbq
+from bigquery_query import key_file, write_project_id, write_table_id
+from time import process_time
 
 #setting credentials as an environment variable
-credentials_path = "cred_location"
+credentials_path = key_file
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
 #target table and project in bigquery, update this according to where the table should be in bigquery
-table_id = "table_id"
-project_id = "project_id"
+table_id = write_table_id
+project_id = write_project_id
+
+t1_start = process_time()
 
 #authenticating and downloading the data from oracle
 try:
@@ -27,6 +31,8 @@ try:
 
     print(df_oracle.head())
     print(df_oracle.dtypes)
+    t1_stop = process_time()
+    print(f"Data took {t1_stop-t1_start} seconds to download")
 except:
     print("Data not downloaded from Oracle")
 
@@ -36,8 +42,7 @@ client = authenticate_credentials.main()
 #defining the schema for bigquery
 schema = convert_datatypes.python_to_bigquery(df_oracle)
 
-#print(oracle_datatype_mapping_table)
-#print(schema)
+t2_start = process_time()
 
 #loading the schema to the jobconfig variable to pass to bigquery
 job_config = bigquery.LoadJobConfig()
@@ -59,5 +64,8 @@ try:
             table.num_rows, len(table.schema), table_id
         )
     )
+
+    t2_stop = process_time()
+    print(f"Data took {t2_stop-t2_start} seconds to upload to Bigquery")
 except:
     print("Data not loaded to Bigquery")
